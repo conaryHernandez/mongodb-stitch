@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import axios from 'axios';
-import { Stitch } from 'mongodb-stitch-browser-sdk';
+import { Stitch, AnonymousCredential } from 'mongodb-stitch-browser-sdk';
 
 import Header from './components/Header/Header';
 import Modal from './components/Modal/Modal';
@@ -21,7 +20,13 @@ class App extends Component {
 
   constructor() {
     super();
-    Stitch.initializeAppClient('myshop-fdqka');
+    Stitch.initializeDefaultAppClient('myshop-fdqka')
+      .then(client => {
+        client.auth.loginWithCredential(new AnonymousCredential());
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   logoutHandler = () => {

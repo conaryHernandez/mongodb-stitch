@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { Stitch, RemoteMongoClient } from 'mongodb-stitch-browser-sdk';
+import { BSON, Stitch, RemoteMongoClient } from 'mongodb-stitch-browser-sdk';
 
 import Products from '../../components/Products/Products';
 
@@ -9,18 +8,23 @@ class ProductsPage extends Component {
   componentDidMount() {
     this.fetchData();
   }
-
   productDeleteHandler = productId => {
-    axios
-      .delete('http://localhost:3100/products/' + productId)
+    const mongodb = Stitch.defaultAppClient().getServiceClient(
+      RemoteMongoClient.factory,
+      'mongodb-atlas'
+    );
+
+    mongodb
+      .db('shop')
+      .collection('products')
+      .deleteOne({ _id: new BSON.ObjectId(productId) })
       .then(result => {
         console.log(result);
+
         this.fetchData();
       })
       .catch(err => {
-        this.props.onError(
-          'Deleting the product failed. Please try again later'
-        );
+        this.setState({ isLoading: false });
         console.log(err);
       });
   };
@@ -37,9 +41,16 @@ class ProductsPage extends Component {
       .find()
       .asArray()
       .then(products => {
+        products.forEach(product => {
+          product._id = product._id.toString();
+          product.price = product.price.toString();
+
+          return product;
+        });
         this.setState({ products });
       })
       .catch(err => {
+        this.setState({ isLoading: false });
         console.log(err);
       });
   };
