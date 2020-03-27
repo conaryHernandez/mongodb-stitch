@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 
 import './Product.css';
 import { BSON, Stitch, RemoteMongoClient } from 'mongodb-stitch-browser-sdk';
