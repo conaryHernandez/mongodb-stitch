@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 
 import './EditProduct.css';
 import Input from '../../components/Input/Input';
@@ -18,7 +17,7 @@ class ProductEditPage extends Component {
   componentDidMount() {
     // Will be "edit" or "add"
     if (this.props.match.params.mode === 'edit') {
-      const mongodb = Stitch.defaultAppClient().getServiceClient(
+      const mongodb = Stitch.defaultAppClient.getServiceClient(
         RemoteMongoClient.factory,
         'mongodb-atlas'
       );
@@ -70,7 +69,7 @@ class ProductEditPage extends Component {
       description: this.state.description
     };
     let request;
-    const mongodb = Stitch.defaultAppClient().getServiceClient(
+    const mongodb = Stitch.defaultAppClient.getServiceClient(
       RemoteMongoClient.factory,
       'mongodb-atlas'
     );

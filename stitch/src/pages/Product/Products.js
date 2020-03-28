@@ -9,7 +9,7 @@ class ProductsPage extends Component {
     this.fetchData();
   }
   productDeleteHandler = productId => {
-    const mongodb = Stitch.defaultAppClient().getServiceClient(
+    const mongodb = Stitch.defaultAppClient.getServiceClient(
       RemoteMongoClient.factory,
       'mongodb-atlas'
     );
@@ -30,7 +30,7 @@ class ProductsPage extends Component {
   };
 
   fetchData = () => {
-    const mongodb = Stitch.defaultAppClient().getServiceClient(
+    const mongodb = Stitch.defaultAppClient.getServiceClient(
       RemoteMongoClient.factory,
       'mongodb-atlas'
     );

@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { Stitch, AnonymousCredential } from 'mongodb-stitch-browser-sdk';
+import {
+  Stitch,
+  UserPasswordAuthProviderClient,
+  UserPasswordCredential
+} from 'mongodb-stitch-browser-sdk';
 
 import Header from './components/Header/Header';
 import Modal from './components/Modal/Modal';
@@ -13,20 +17,14 @@ import ConfirmAccountPage from './pages/Auth/ConfirmAccount';
 
 class App extends Component {
   state = {
-    isAuth: true,
+    isAuth: false,
     authMode: 'login',
     error: null
   };
 
   constructor() {
     super();
-    Stitch.initializeDefaultAppClient('myshop-fdqka')
-      .then(client => {
-        client.auth.loginWithCredential(new AnonymousCredential());
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    this.client = Stitch.initializeDefaultAppClient('myshop-fdqka');
   }
 
   logoutHandler = () => {
@@ -34,32 +32,60 @@ class App extends Component {
   };
 
   authHandler = (event, authData) => {
-    /* event.preventDefault();
+    event.preventDefault();
     if (authData.email.trim() === '' || authData.password.trim() === '') {
       return;
     }
     let request;
+    const emailPassClient = this.client.auth.getProviderClient(
+      UserPasswordAuthProviderClient.factory
+    );
     if (this.state.authMode === 'login') {
-      request = axios.post('http://localhost:3100/login', authData);
+      const credential = new UserPasswordCredential(
+        authData.email,
+        authData.password
+      );
+      request = this.client.auth.loginWithCredential(credential);
     } else {
-      request = axios.post('http://localhost:3100/signup', authData);
+      request = emailPassClient.registerWithEmail(
+        authData.email,
+        authData.password
+      );
     }
+
     request
-      .then(authResponse => {
-        if (authResponse.status === 201 || authResponse.status === 200) {
-          const token = authResponse.data.token;
-          console.log(token);
-          // Theoretically, you would now store the token in localstorage + app state
-          // and use it for subsequent requests to protected backend resources
+      .then(result => {
+        console.log(result);
+        if (result) {
           this.setState({ isAuth: true });
         }
       })
       .catch(err => {
-        this.errorHandler(err.response.data.message);
+        this.errorHandler('An error occurred.');
         console.log(err);
         this.setState({ isAuth: false });
       });
-      */
+    // let request;
+    // if (this.state.authMode === 'login') {
+    //   request = axios.post('http://localhost:3100/login', authData);
+    // } else {
+    //   request = axios.post('http://localhost:3100/signup', authData);
+    // }
+    // request
+    //   .then(authResponse => {
+    //     if (authResponse.status === 201 || authResponse.status === 200) {
+    //       const token = authResponse.data.token;
+    //       console.log(token);
+    //       // Theoretically, you would now store the token in localstorage + app state
+    //       // and use it for subsequent requests to protected backend resources
+    //       this.setState({ isAuth: true });
+    //     }
+    //   })
+    //   .catch(err => {
+    //     this.errorHandler(err.response.data.message);
+    //     console.log(err);
+    //     this.setState({ isAuth: false });
+    //   });
   };
 
   authModeChangedHandler = () => {
